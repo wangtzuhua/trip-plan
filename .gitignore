@@ -1,0 +1,12 @@
+# macOS
+.DS_Store
+
+# Vercel
+.vercel
+
+# Node（若用 npx 產生）
+node_modules/
+
+# 編輯器
+.vscode/
+.idea/

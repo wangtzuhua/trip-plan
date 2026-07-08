@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#EBDFCC">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>九州慶生自駕之旅 2026</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⛩️</text></svg>">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+
+<!-- iOS PWA 啟動畫面（各機型解析度） -->
+<link rel="apple-touch-startup-image" media="screen and (device-width: 440px) and (device-height: 956px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="splash/splash-1320x2868.png">
+<link rel="apple-touch-startup-image" media="screen and (device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="splash/splash-1290x2796.png">
+<link rel="apple-touch-startup-image" media="screen and (device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="splash/splash-1284x2778.png">
+<link rel="apple-touch-startup-image" media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="splash/splash-1242x2688.png">
+<link rel="apple-touch-startup-image" media="screen and (device-width: 402px) and (device-height: 874px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="splash/splash-1206x2622.png">
+<link rel="apple-touch-startup-image" media="screen and (device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="splash/splash-1179x2556.png">
+<link rel="apple-touch-startup-image" media="screen and (device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="splash/splash-1170x2532.png">
+<link rel="apple-touch-startup-image" media="screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="splash/splash-1125x2436.png">
+<link rel="apple-touch-startup-image" media="screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="splash/splash-1242x2208.png">
+<link rel="apple-touch-startup-image" media="screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="splash/splash-828x1792.png">
+<link rel="apple-touch-startup-image" media="screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="splash/splash-750x1334.png">
+
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="app-header">
+  <div class="app-header-inner">
+    <div class="app-title">
+      <span class="app-title-kanji">九州</span>
+      <div class="app-title-text">
+        <h1>慶生自駕之旅</h1>
+        <p>2026.07.12 – 07.17 · 6天5夜</p>
+      </div>
+    </div>
+    <div class="trip-countdown" id="tripCountdown"></div>
+  </div>
+</header>
+
+<main id="main">
+  <!-- 行程 -->
+  <section class="view" id="view-itinerary">
+    <nav class="day-tabs" id="dayTabs"></nav>
+    <div id="dayContent"></div>
+  </section>
+
+  <!-- 美食 -->
+  <section class="view hidden" id="view-food">
+    <div class="food-toolbar">
+      <div class="chip-row" id="foodRegionChips"></div>
+      <div class="sort-row">
+        <span class="sort-label">排序</span>
+        <button class="sort-btn active" data-sort="rating">⭐ 評價</button>
+        <button class="sort-btn" data-sort="distance">📍 距離</button>
+      </div>
+      <p class="sort-hint hidden" id="geoHint"></p>
+    </div>
+    <div id="foodList"></div>
+  </section>
+
+  <!-- 購買清單 -->
+  <section class="view hidden" id="view-shopping">
+    <div id="shoppingContent"></div>
+  </section>
+
+  <!-- 資訊 -->
+  <section class="view hidden" id="view-info">
+    <div id="infoContent"></div>
+  </section>
+</main>
+
+<nav class="tab-bar">
+  <button class="tab-item active" data-view="itinerary">
+    <span class="tab-icon">🗓️</span><span class="tab-label">行程</span>
+  </button>
+  <button class="tab-item" data-view="food">
+    <span class="tab-icon">🍱</span><span class="tab-label">美食</span>
+  </button>
+  <button class="tab-item" data-view="shopping">
+    <span class="tab-icon">🛍️</span><span class="tab-label">購物</span>
+  </button>
+  <button class="tab-item" data-view="info">
+    <span class="tab-icon">🎫</span><span class="tab-label">資訊</span>
+  </button>
+</nav>
+
+<div class="toast" id="toast"></div>
+
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
