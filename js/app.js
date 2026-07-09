@@ -10,16 +10,31 @@
 
   const TYPE_LABEL = {
     spot: "景點", food: "美食", transit: "交通",
-    hotel: "住宿", onsen: "溫泉", flight: "航班",
+    hotel: "住宿", onsen: "溫泉", flight: "航班", shop: "購物",
   };
 
   const state = {
     day: 1,
+    view: "itinerary",
     region: "全部",
     sort: "rating",
+    shopFilter: "全部",
     userPos: null,
     weatherCache: {},
   };
+
+  // 記住各分頁的捲動位置，切回時還原（不歸零）
+  const scrollPos = { itinerary: 0, food: 0, shopping: 0, info: 0 };
+
+  function showView(view) {
+    // 離開前先記下目前分頁的捲動位置
+    scrollPos[state.view] = window.scrollY || document.documentElement.scrollTop || 0;
+    state.view = view;
+    $$(".tab-item").forEach(t => t.classList.toggle("active", t.dataset.view === view));
+    $$(".view").forEach(v => v.classList.add("hidden"));
+    $(`#view-${view}`).classList.remove("hidden");
+    return scrollPos[view] || 0;
+  }
 
   /* ---------- helpers ---------- */
   const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) =>
@@ -74,7 +89,15 @@
     const btns = [];
     if (ev.nav) btns.push(`<a class="btn btn-nav" href="${navUrl(ev.nav)}" target="_blank" rel="noopener">🧭 導航</a>`);
     if (ev.phone) btns.push(`<a class="btn btn-tel" href="tel:${ev.phone.replace(/[^\d+#]/g, "")}">📞 撥打</a>`);
+    if (ev.foodRef && RESTAURANTS.some(r => r.id === ev.foodRef))
+      btns.push(`<button class="btn btn-food" onclick="jumpToFood('${ev.foodRef}')">🍜 美食頁看詳情 →</button>`);
     return btns.length ? `<div class="action-row">${btns.join("")}</div>` : "";
+  }
+
+  function noteHtml(ev) {
+    if (!ev.note) return "";
+    const notes = Array.isArray(ev.note) ? ev.note : [ev.note];
+    return `<div class="event-note">${notes.map(n => `<p>${esc(n)}</p>`).join("")}</div>`;
   }
 
   const RITUAL_STEPS = [
@@ -138,12 +161,17 @@
     const desc = ev.desc
       ? `<div class="event-desc">${ev.desc.map(p => `<p>${esc(p)}</p>`).join("")}</div>` : "";
     const options = ev.options ? `
-      <div class="option-list">${ev.options.map(o => `
+      <div class="option-list">${ev.options.map(o => {
+        const nm = (o.ref && RESTAURANTS.some(r => r.id === o.ref))
+          ? `<button class="opt-name opt-link" onclick="jumpToFood('${o.ref}')">${esc(o.name)}</button>`
+          : `<div class="opt-name">${esc(o.name)}</div>`;
+        return `
         <div class="option-item">
-          <div class="opt-name">${esc(o.name)}</div>
+          ${nm}
           <div class="opt-time">⏰ ${esc(o.time)}</div>
           <div class="opt-note">${esc(o.note)}</div>
-        </div>`).join("")}
+        </div>`;
+      }).join("")}
       </div>` : "";
 
     return `
@@ -159,6 +187,7 @@
           ${transit}
           ${desc}
           ${options}
+          ${noteHtml(ev)}
           ${shrineHtml(ev)}
           ${metaHtml(ev)}
           ${actionsHtml(ev)}
@@ -253,7 +282,7 @@
     const dist = (state.sort === "distance" && state.userPos)
       ? `<span class="food-dist">📍 ${distKm(state.userPos, r).toFixed(1)} km</span>` : "";
     return `
-      <div class="food-card">
+      <div class="food-card" id="food-${esc(r.id)}">
         <div class="food-card-head">
           <div class="food-name">${esc(r.name)}
             <div><span class="food-region-badge">${esc(r.region)}</span></div>
@@ -297,6 +326,30 @@
       $("#foodList").innerHTML = list.map(foodCard).join("");
     }
   }
+
+  /* 從行程頁跳到美食頁的指定餐廳並高亮 */
+  window.jumpToFood = function (id) {
+    const r = RESTAURANTS.find(x => x.id === id);
+    if (!r) return;
+    // 切到美食分頁（會先記住行程頁的捲動位置）
+    showView("food");
+    // 切到該餐廳所屬區域、評價排序
+    state.region = r.region;
+    state.sort = "rating";
+    $$(".sort-btn").forEach(b => b.classList.toggle("active", b.dataset.sort === "rating"));
+    $("#geoHint")?.classList.add("hidden");
+    renderRegionChips();
+    renderFood();
+    // 捲動並閃爍高亮（延遲讓新清單先完成排版）
+    setTimeout(() => {
+      const el = document.getElementById("food-" + id);
+      if (!el) return;
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+      el.classList.remove("flash");
+      void el.offsetWidth;
+      el.classList.add("flash");
+    }, 80);
+  };
 
   function setupSort() {
     $$(".sort-btn").forEach(btn => btn.addEventListener("click", () => {
@@ -408,7 +461,18 @@
   function renderShopping() {
     const saved = JSON.parse(localStorage.getItem("trip-shopping") || "{}");
 
-    const cards = STORES.map(store => {
+    const chips = ["全部", ...STORES.map(s => s.name)];
+    const toolbar = `
+      <div class="shop-toolbar">
+        <div class="chip-row" id="shopChips">
+          ${chips.map(c => `<button class="region-chip ${c === state.shopFilter ? "active" : ""}" data-shop-filter="${esc(c)}">${esc(c)}</button>`).join("")}
+        </div>
+      </div>`;
+
+    const visible = state.shopFilter === "全部"
+      ? STORES : STORES.filter(s => s.name === state.shopFilter);
+
+    const cards = visible.map(store => {
       const total = store.items.length;
       const done = store.items.filter((_, i) => saved[`${store.id}-${i}`]).length;
       const items = store.items.map((item, i) => {
@@ -433,12 +497,17 @@
         </div>`;
     }).join("");
 
-    $("#shoppingContent").innerHTML = `
+    $("#shoppingContent").innerHTML = toolbar + `
       <div class="info-section">
-        <div class="info-section-title">🛍️ 購買清單</div>
-        <div class="shop-note">${esc(SHOPPING_NOTE)}</div>
+        ${state.shopFilter === "全部" ? `<div class="shop-note">${esc(SHOPPING_NOTE)}</div>` : ""}
         ${cards}
       </div>`;
+
+    $$("#shopChips [data-shop-filter]").forEach(c => c.addEventListener("click", () => {
+      state.shopFilter = c.dataset.shopFilter;
+      renderShopping();
+      window.scrollTo({ top: 0 });
+    }));
 
     $$("#shoppingContent [data-shop]").forEach(cb => cb.addEventListener("change", () => {
       const s = JSON.parse(localStorage.getItem("trip-shopping") || "{}");
@@ -457,12 +526,9 @@
   /* ---------- Tab 切換 ---------- */
   function setupTabs() {
     $$(".tab-item").forEach(tab => tab.addEventListener("click", () => {
-      $$(".tab-item").forEach(t => t.classList.remove("active"));
-      tab.classList.add("active");
       const view = tab.dataset.view;
-      $$(".view").forEach(v => v.classList.add("hidden"));
-      $(`#view-${view}`).classList.remove("hidden");
-      window.scrollTo({ top: 0 });
+      const y = showView(view);
+      window.scrollTo({ top: y });
     }));
   }
 

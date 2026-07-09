@@ -55,14 +55,11 @@ a { color: var(--ai); text-decoration: none; }
   padding-bottom: 12px;
 }
 .app-title { display: flex; align-items: center; gap: 12px; }
-.app-title-kanji {
-  font-size: 26px; font-weight: 700; color: #fff;
-  background: var(--shu);
-  width: 46px; height: 46px; border-radius: 12px;
-  display: flex; align-items: center; justify-content: center;
-  letter-spacing: 0; line-height: 1;
-  writing-mode: vertical-rl;
-  font-size: 17px;
+.app-title-logo {
+  width: 46px; height: 46px; border-radius: 13px;
+  object-fit: cover; display: block; flex: 0 0 auto;
+  box-shadow: 0 1px 5px rgba(80, 60, 30, .18);
+  border: 1px solid rgba(255, 255, 255, .6);
 }
 .app-title-text h1 { font-size: 18px; font-weight: 700; letter-spacing: .06em; }
 .app-title-text p { font-size: 12px; color: var(--ink-faint); letter-spacing: .05em; }
@@ -155,6 +152,7 @@ a { color: var(--ai); text-decoration: none; }
 .event-card.type-hotel   { --c: var(--matcha); }
 .event-card.type-onsen   { --c: var(--kin); }
 .event-card.type-flight  { --c: var(--murasaki); }
+.event-card.type-shop    { --c: var(--murasaki); }
 
 .event-head {
   display: flex; align-items: flex-start; gap: 10px;
@@ -303,6 +301,26 @@ a { color: var(--ai); text-decoration: none; }
   transform: translateY(2px);
 }
 
+/* note callout (提醒 / 潮汐 / 戰術) */
+.event-note {
+  font-size: 12.5px; line-height: 1.62; color: #8a5a1e;
+  background: var(--kin-bg); border: 1px solid #E6D3AE;
+  border-left: 3px solid var(--kin);
+  border-radius: 10px; padding: 8px 11px; margin-bottom: 8px;
+}
+.event-note p + p { margin-top: 6px; }
+
+/* 跳到美食頁按鈕 */
+.btn-food { background: var(--shu-bg); color: var(--shu); border: 1px solid #E8CDB8; }
+
+/* 晚餐多選：可點的店名連結 */
+.opt-name.opt-link {
+  color: var(--shu); cursor: pointer;
+  display: inline-flex; align-items: center; gap: 3px;
+}
+.opt-name.opt-link::after { content: "›"; font-size: 15px; line-height: 1; }
+.opt-name.opt-link:active { opacity: .6; }
+
 /* guide story (collapsible) */
 .guide-box { margin-top: 4px; border-top: 1px dashed var(--line); }
 .guide-toggle {
@@ -378,6 +396,15 @@ a { color: var(--ai); text-decoration: none; }
   padding: 1px 8px; border-radius: 99px; margin-top: 4px;
   background: #EDE1C8; color: var(--ink-faint);
 }
+.food-card { scroll-margin-top: 90px; transition: box-shadow .25s; }
+.food-card.flash {
+  animation: cardFlash 1.8s ease;
+}
+@keyframes cardFlash {
+  0%, 100% { box-shadow: var(--shadow); }
+  12% { box-shadow: 0 0 0 3px var(--shu), var(--shadow); }
+  60% { box-shadow: 0 0 0 3px color-mix(in srgb, var(--shu) 40%, transparent), var(--shadow); }
+}
 .food-desc { font-size: 13px; color: var(--ink-soft); margin: 7px 0; }
 .food-hours { font-size: 12px; color: var(--ink-faint); margin-bottom: 9px; }
 .food-hours b { color: var(--matcha); font-weight: 700; }
@@ -436,6 +463,10 @@ a { color: var(--ai); text-decoration: none; }
 .check-item.done span { color: var(--ink-faint); text-decoration: line-through; }
 
 /* ---------- Shopping view ---------- */
+.shop-toolbar {
+  padding: 14px 18px 4px; position: sticky; top: 0; z-index: 20;
+  background: linear-gradient(var(--bg) 90%, transparent);
+}
 .shop-note {
   font-size: 12px; color: var(--ink-soft); line-height: 1.6;
   background: var(--kin-bg); border: 1px solid #E3D4B4;

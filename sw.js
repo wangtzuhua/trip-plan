@@ -1,7 +1,7 @@
 /* Service Worker — 九州慶生自駕之旅
    離線可用：快取 App 殼層；天氣等跨網域請求走網路
    改版時把 CACHE 版本號 +1 即可讓使用者更新 */
-const CACHE = "kyushu-trip-v1";
+const CACHE = "kyushu-trip-v2";
 
 /* 相對於 sw.js 所在位置的 App 殼層檔案（GitHub Pages 子路徑也適用） */
 const ASSETS = [
