@@ -206,6 +206,7 @@
           <div class="day-header-sub">📍 ${esc(d.sub)}</div>
         </div>
         <div id="weatherSlot"><div class="weather-loading">☁️ 載入 ${esc(d.weather.name)} 天氣中…</div></div>
+        ${d.outfit ? `<div class="day-outfit"><span class="day-outfit-label">👕 推薦穿著</span><span class="day-outfit-text">${esc(d.outfit)}</span></div>` : ""}
       </div>
       <div class="timeline">${d.events.map((ev, i) => eventCard(ev, i)).join("")}</div>`;
     loadWeather(d);
