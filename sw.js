@@ -1,7 +1,7 @@
 /* Service Worker — 九州慶生自駕之旅
    離線可用：快取 App 殼層；天氣等跨網域請求走網路
    改版時把 CACHE 版本號 +1 即可讓使用者更新 */
-const CACHE = "kyushu-trip-v2";
+const CACHE = "kyushu-trip-v3";
 
 /* 相對於 sw.js 所在位置的 App 殼層檔案（GitHub Pages 子路徑也適用） */
 const ASSETS = [
@@ -49,19 +49,16 @@ self.addEventListener("fetch", (e) => {
     return;
   }
 
-  // 同網域靜態資源：快取優先，順便背景更新
+  // 同網域靜態資源：網路優先（有網路一定拿最新），失敗才用快取（離線可用）
   e.respondWith(
-    caches.match(req).then((cached) => {
-      const network = fetch(req)
-        .then((res) => {
-          if (res && res.status === 200) {
-            const copy = res.clone();
-            caches.open(CACHE).then((c) => c.put(req, copy));
-          }
-          return res;
-        })
-        .catch(() => cached);
-      return cached || network;
-    })
+    fetch(req)
+      .then((res) => {
+        if (res && res.status === 200) {
+          const copy = res.clone();
+          caches.open(CACHE).then((c) => c.put(req, copy));
+        }
+        return res;
+      })
+      .catch(() => caches.match(req))
   );
 });
